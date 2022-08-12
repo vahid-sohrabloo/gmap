@@ -209,7 +209,6 @@ func (m *Map[K, V]) LoadOrStore(key K, value V) (actual V, loaded bool) {
 	// Avoid locking if it's a clean hit.
 	read, _ := m.read.Load().(readOnly[K, V])
 	if e, ok := read.m[key]; ok {
-		// fmt.Println("aa", key)
 		actual, loaded, ok := e.tryLoadOrStore(value)
 		if ok {
 			return actual, loaded
@@ -224,12 +223,7 @@ func (m *Map[K, V]) LoadOrStore(key K, value V) (actual V, loaded bool) {
 		}
 		actual, loaded, _ = e.tryLoadOrStore(value)
 	} else if e, ok := m.dirty[key]; ok {
-		// fmt.Println("key", key)
-		// for k := range m.dirty {
-		// 	fmt.Println(k)
-		// }
 		actual, loaded, _ = e.tryLoadOrStore(value)
-		// fmt.Println("keyend", key)
 		m.missLocked()
 	} else {
 		if !read.amended {
